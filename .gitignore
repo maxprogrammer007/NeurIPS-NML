@@ -19,10 +19,13 @@ phase0/drive_data/
 phase0/checkpoints/
 phase0/models/
 *.jpg
-*.png
 *.jpeg
 *.zip
 *.tar.gz
+
+# Ignore images except result plots/galleries
+*.png
+!phase0/results/**/*.png
 
 # Environment & OS
 .env
