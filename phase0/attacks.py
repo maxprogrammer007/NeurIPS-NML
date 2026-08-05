@@ -131,40 +131,42 @@ def pgd_adaptive_csed(art_model, sem_model,
     for step in range(steps):
         adv_req = adv.detach().clone().requires_grad_(True)
 
-        logit_a = art_model(adv_req)
-        feat_a  = feat_a_buf[0]
+        with torch.amp.autocast(device_type='cuda', dtype=torch.float16):
+            logit_a = art_model(adv_req)
+            feat_a  = feat_a_buf[0]
 
-        logit_b = sem_model(adv_req)
-        feat_b  = feat_b_buf[0]
+            logit_b = sem_model(adv_req)
+            feat_b  = feat_b_buf[0]
 
-        logit_avg = (logit_a + logit_b) / 2
-        loss_ce   = F.cross_entropy(logit_avg, label)
+            logit_avg = (logit_a + logit_b) / 2
+            loss_ce   = F.cross_entropy(logit_avg, label)
 
-        if use_feature_proxy and feat_a is not None and feat_b is not None:
-            # feat_a: (1, 2048, 7, 7) → mean across channels → interpolate to (1, 1, 16, 16)
-            if feat_a.dim() == 4:
-                fa_map = feat_a.mean(dim=1, keepdim=True)
-                fa_map = F.interpolate(fa_map, size=(16, 16), mode='bilinear', align_corners=False)
+            if use_feature_proxy and feat_a is not None and feat_b is not None:
+                # feat_a: (B, 2048, 7, 7) → mean across channels → interpolate to (B, 1, 16, 16)
+                if feat_a.dim() == 4:
+                    fa_map = feat_a.mean(dim=1, keepdim=True)
+                    fa_map = F.interpolate(fa_map, size=(16, 16), mode='bilinear', align_corners=False)
+                else:
+                    fa_map = feat_a.view(-1, 1, 16, 16)
+
+                # feat_b: (257, B, 1024) → drop CLS, permute to (B, 1024, 16, 16) → mean across channels
+                if feat_b.dim() == 3:
+                    fb_tokens = feat_b[1:, :, :] # (256, B, 1024)
+                    B_dim = fb_tokens.shape[1]
+                    fb_grid = fb_tokens.permute(1, 2, 0).reshape(B_dim, 1024, 16, 16)
+                    fb_map = fb_grid.mean(dim=1, keepdim=True) # (B, 1, 16, 16)
+                else:
+                    fb_map = fb_grid.view(-1, 1, 16, 16)
+
+                # Differentiable spatial CSED proxy: 1 - cosine_similarity of spatial maps
+                fa_flat = fa_map.flatten(1).float()
+                fb_flat = fb_map.flatten(1).float()
+                csed_proxy = 1.0 - F.cosine_similarity(fa_flat, fb_flat, dim=1).mean()
+
+                # Attack wants to SUPPRESS divergence → subtract λ · csed_proxy
+                loss = loss_ce - lam * csed_proxy
             else:
-                fa_map = feat_a.view(1, 1, 16, 16)
-
-            # feat_b: (257, 1, 1024) → drop CLS, permute to (1, 1024, 16, 16) → mean across channels
-            if feat_b.dim() == 3:
-                fb_tokens = feat_b[1:, 0, :] # (256, 1024)
-                fb_grid = fb_tokens.reshape(16, 16, 1024).permute(2, 0, 1).unsqueeze(0) # (1, 1024, 16, 16)
-                fb_map = fb_grid.mean(dim=1, keepdim=True) # (1, 1, 16, 16)
-            else:
-                fb_map = feat_b.view(1, 1, 16, 16)
-
-            # Differentiable spatial CSED proxy: 1 - cosine_similarity of spatial maps
-            fa_flat = fa_map.flatten(1)
-            fb_flat = fb_map.flatten(1)
-            csed_proxy = 1.0 - F.cosine_similarity(fa_flat, fb_flat, dim=1).mean()
-
-            # Attack wants to SUPPRESS divergence → subtract λ · csed_proxy
-            loss = loss_ce - lam * csed_proxy
-        else:
-            loss = loss_ce
+                loss = loss_ce
 
         loss.backward()
 
