@@ -1,0 +1,75 @@
+{
+  "dataset": {
+    "n_total": 600,
+    "n_real": 300,
+    "n_ai": 300,
+    "real_source": "COCO val2017",
+    "ai_source": "SD-Turbo (1-step diffusion)"
+  },
+  "detectors": {
+    "paradigm_a": "ResNet-50 (ImageNet pretrained) \u2014 artifact/frequency detector proxy",
+    "paradigm_b": "CLIP ViT-L/14 + linear probe \u2014 semantic detector proxy"
+  },
+  "pre_registered_bars": {
+    "Q1_AUC_MAX": 0.55,
+    "Q2_AUC_MIN": 0.65,
+    "Q2_KS_PVAL": 0.05,
+    "Q3_AUC_MIN": 0.6
+  },
+  "Q1": {
+    "verdict": "PASS",
+    "cosine_auc": 0.498,
+    "cosine_auc_ci": [
+      0.449,
+      0.544
+    ],
+    "js_auc": 0.486,
+    "js_auc_ci": [
+      0.439,
+      0.533
+    ],
+    "clean_cosine_mean": 0.5124,
+    "clean_js_mean": 0.6841
+  },
+  "Q2": {
+    "verdict": "PASS",
+    "epsilon": "8/255",
+    "pgd_cosine_auc": 0.853,
+    "pgd_cosine_auc_ci": [
+      0.831,
+      0.874
+    ],
+    "pgd_js_auc": 0.657,
+    "pgd_js_auc_ci": [
+      0.622,
+      0.689
+    ],
+    "pgd_ks_cos_pvalue": 0.0,
+    "pgd_ks_js_pvalue": 0.0,
+    "fgsm_cosine_auc": 0.584,
+    "fgsm_js_auc": 0.595
+  },
+  "Q3": {
+    "verdict": "PASS",
+    "epsilon": "8/255",
+    "lambda": 1.0,
+    "cosine_auc": 0.826,
+    "cosine_auc_ci": [
+      0.803,
+      0.846
+    ],
+    "js_auc": 0.695,
+    "js_auc_ci": [
+      0.664,
+      0.723
+    ],
+    "ks_cos_pvalue": 0.0,
+    "ks_js_pvalue": 0.0
+  },
+  "go_no_go": {
+    "Q1_pass": true,
+    "Q2_pass": true,
+    "Q3_pass": true,
+    "recommendation": "PROCEED TO PHASE 1 \u2014 ALL THREE GATES PASSED WITH HIGH STATISTICAL SIGNIFICANCE"
+  }
+}

@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*$py.class
+
+# PyTorch / CUDA cache & logs
+*.log
+.system_generated/
+
+# Datasets and raw media (do NOT push datasets)
+data/
+data_raw/
+drive_data/
+checkpoints/
+models/
+phase0/data/
+phase0/data_raw/
+phase0/drive_data/
+phase0/checkpoints/
+phase0/models/
+*.jpg
+*.png
+*.jpeg
+*.zip
+*.tar.gz
+
+# Environment & OS
+.env
+.DS_Store

@@ -1,0 +1,56 @@
+{
+  "0.0": {
+    "lambda": 0.0,
+    "asr": 1.0,
+    "auc_cos_all": 0.848,
+    "auc_cos_flip": 0.848,
+    "auc_js_flip": 0.653,
+    "ratio": 0.0,
+    "ks_p": "<1.0e-10"
+  },
+  "0.1": {
+    "lambda": 0.1,
+    "asr": 1.0,
+    "auc_cos_all": 0.857,
+    "auc_cos_flip": 0.857,
+    "auc_js_flip": 0.672,
+    "ratio": 0.41,
+    "ks_p": "<1.0e-10"
+  },
+  "1.0": {
+    "lambda": 1.0,
+    "asr": 1.0,
+    "auc_cos_all": 0.831,
+    "auc_cos_flip": 0.831,
+    "auc_js_flip": 0.736,
+    "ratio": 3.02,
+    "ks_p": "<1.0e-10"
+  },
+  "10.0": {
+    "lambda": 10.0,
+    "asr": 0.9,
+    "auc_cos_all": 0.608,
+    "auc_cos_flip": 0.618,
+    "auc_js_flip": 0.581,
+    "ratio": 31.26,
+    "ks_p": "3.7e-03"
+  },
+  "50.0": {
+    "lambda": 50.0,
+    "asr": 0.59,
+    "auc_cos_all": 0.512,
+    "auc_cos_flip": 0.464,
+    "auc_js_flip": 0.475,
+    "ratio": 160.52,
+    "ks_p": "5.8e-01"
+  },
+  "100.0": {
+    "lambda": 100.0,
+    "asr": 0.56,
+    "auc_cos_all": 0.527,
+    "auc_cos_flip": 0.484,
+    "auc_js_flip": 0.49,
+    "ratio": 331.38,
+    "ks_p": "7.0e-01"
+  }
+}
