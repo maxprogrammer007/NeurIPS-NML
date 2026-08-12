@@ -462,7 +462,7 @@ def parse_args():
                    help="Explanation method (gradcam=Phase0 baseline)")
 
     # Performance
-    p.add_argument("--attack_batch_size", type=int, default=16)
+    p.add_argument("--attack_batch_size", type=int, default=4)
     p.add_argument("--output_dir",        type=str, default="results")
 
     return p.parse_args()
