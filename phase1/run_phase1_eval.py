@@ -223,9 +223,15 @@ def compute_condition_metrics(
         scores_vf = np.concatenate([clean_cos, vf_cos])
         auc_vf = safe_auc(y_true_vf, scores_vf)
         ci_vf = bootstrap_auc_ci(y_true_vf, scores_vf)
+        
+        # Explanation Collapse Detection AUC (1 - AUC_raw, where clean > attacked)
+        auc_collapse = 1.0 - auc_vf
+        ci_collapse = [round(1.0 - ci_vf[1], 4), round(1.0 - ci_vf[0], 4)]
     else:
         auc_vf = float("nan")
         ci_vf = (float("nan"), float("nan"))
+        auc_collapse = float("nan")
+        ci_collapse = (float("nan"), float("nan"))
 
     return {
         "n": N,
@@ -238,11 +244,13 @@ def compute_condition_metrics(
             "valid_and_flip":   valid_and_flip,
             "valid_and_unflip": valid_and_unflip,
         },
-        "auc_filtered":          round(auc_filt, 4) if not np.isnan(auc_filt) else None,
-        "ci_filtered":           [round(ci_filt[0], 4), round(ci_filt[1], 4)],
-        "n_valid_flipped":        n_valid_flipped,
-        "auc_flipped_filtered":   round(auc_vf, 4) if not np.isnan(auc_vf) else None,
-        "ci_flipped_filtered":    [round(ci_vf[0], 4), round(ci_vf[1], 4)],
+        "auc_filtered":                round(auc_filt, 4) if not np.isnan(auc_filt) else None,
+        "ci_filtered":                 [round(ci_filt[0], 4), round(ci_filt[1], 4)],
+        "n_valid_flipped":              n_valid_flipped,
+        "auc_flipped_filtered_raw":     round(auc_vf, 4) if not np.isnan(auc_vf) else None,
+        "ci_flipped_filtered_raw":      [round(ci_vf[0], 4), round(ci_vf[1], 4)],
+        "auc_flipped_filtered_collapse": round(auc_collapse, 4) if not np.isnan(auc_collapse) else None,
+        "ci_flipped_filtered_collapse":  ci_collapse,
     }
 
 
@@ -398,16 +406,20 @@ def run_phase1_eval(args):
     logger.info("="*70)
     attack_names = [c[2] for c in attack_configs]
     for cond_name in attack_names:
-        aucs = []
+        raw_aucs, collapse_aucs = [], []
         for gen_name, gres in all_results.items():
-            v = gres["conditions"].get(cond_name, {}).get("auc_flipped_filtered")
-            if v is not None and not np.isnan(v):
-                aucs.append(v)
-        if aucs:
+            cond_res = gres["conditions"].get(cond_name, {})
+            v_raw = cond_res.get("auc_flipped_filtered_raw")
+            v_col = cond_res.get("auc_flipped_filtered_collapse")
+            if v_raw is not None and not np.isnan(v_raw):
+                raw_aucs.append(v_raw)
+            if v_col is not None and not np.isnan(v_col):
+                collapse_aucs.append(v_col)
+        if collapse_aucs:
             logger.info(
-                f"  {cond_name}: mean Flipped+Filtered AUC = "
-                f"{np.mean(aucs):.4f} ± {np.std(aucs):.4f} "
-                f"across {len(aucs)} generators"
+                f"  {cond_name}: mean Collapse Detection AUC = "
+                f"{np.mean(collapse_aucs):.4f} ± {np.std(collapse_aucs):.4f} "
+                f"(Raw Cosine AUC = {np.mean(raw_aucs):.4f}) across {len(collapse_aucs)} generators"
             )
 
     return all_results
