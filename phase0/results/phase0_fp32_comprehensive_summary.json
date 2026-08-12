@@ -1,0 +1,205 @@
+{
+  "FGSM (eps=8/255)": {
+    "asr_pct": 64.0,
+    "n_flipped": 192,
+    "total_deg_rate_pct": 3.33,
+    "deg_rate_a_pct": 3.33,
+    "deg_rate_b_pct": 0.0,
+    "cross_tab_2x2": {
+      "deg_and_flipped": 10,
+      "deg_and_unflipped": 0,
+      "valid_and_flipped": 182,
+      "valid_and_unflipped": 108
+    },
+    "auc_unfiltered": 0.5356,
+    "ci_unfiltered": [
+      0.4845,
+      0.5809
+    ],
+    "auc_filtered": 0.5202,
+    "ci_filtered": [
+      0.4718,
+      0.5692
+    ],
+    "auc_flipped_filtered": 0.5842,
+    "ci_flipped_filtered": [
+      0.5322,
+      0.6361
+    ],
+    "n_valid_flipped": 182
+  },
+  "PGD-T1 (lambda=0.0, 30 steps)": {
+    "asr_pct": 99.67,
+    "n_flipped": 299,
+    "total_deg_rate_pct": 35.67,
+    "deg_rate_a_pct": 35.67,
+    "deg_rate_b_pct": 0.0,
+    "cross_tab_2x2": {
+      "deg_and_flipped": 107,
+      "deg_and_unflipped": 0,
+      "valid_and_flipped": 192,
+      "valid_and_unflipped": 1
+    },
+    "auc_unfiltered": 0.8073,
+    "ci_unfiltered": [
+      0.7709,
+      0.8408
+    ],
+    "auc_filtered": 0.7106,
+    "ci_filtered": [
+      0.6653,
+      0.7533
+    ],
+    "auc_flipped_filtered": 0.7131,
+    "ci_flipped_filtered": [
+      0.6668,
+      0.7571
+    ],
+    "n_valid_flipped": 192
+  },
+  "T2 Sweep lambda=0.1 (30 steps)": {
+    "asr_pct": 99.67,
+    "n_flipped": 299,
+    "total_deg_rate_pct": 32.0,
+    "deg_rate_a_pct": 32.0,
+    "deg_rate_b_pct": 0.0,
+    "cross_tab_2x2": {
+      "deg_and_flipped": 96,
+      "deg_and_unflipped": 0,
+      "valid_and_flipped": 203,
+      "valid_and_unflipped": 1
+    },
+    "auc_unfiltered": 0.7859,
+    "ci_unfiltered": [
+      0.7489,
+      0.8206
+    ],
+    "auc_filtered": 0.6938,
+    "ci_filtered": [
+      0.6462,
+      0.7383
+    ],
+    "auc_flipped_filtered": 0.6962,
+    "ci_flipped_filtered": [
+      0.6495,
+      0.7434
+    ],
+    "n_valid_flipped": 203
+  },
+  "T2 Sweep lambda=1.0 (30 steps)": {
+    "asr_pct": 98.67,
+    "n_flipped": 296,
+    "total_deg_rate_pct": 22.33,
+    "deg_rate_a_pct": 22.33,
+    "deg_rate_b_pct": 0.0,
+    "cross_tab_2x2": {
+      "deg_and_flipped": 67,
+      "deg_and_unflipped": 0,
+      "valid_and_flipped": 229,
+      "valid_and_unflipped": 4
+    },
+    "auc_unfiltered": 0.722,
+    "ci_unfiltered": [
+      0.6791,
+      0.7617
+    ],
+    "auc_filtered": 0.6473,
+    "ci_filtered": [
+      0.6019,
+      0.6961
+    ],
+    "auc_flipped_filtered": 0.6517,
+    "ci_flipped_filtered": [
+      0.6076,
+      0.6956
+    ],
+    "n_valid_flipped": 229
+  },
+  "T2 Sweep lambda=10.0 (30 steps)": {
+    "asr_pct": 88.33,
+    "n_flipped": 265,
+    "total_deg_rate_pct": 9.67,
+    "deg_rate_a_pct": 9.67,
+    "deg_rate_b_pct": 0.0,
+    "cross_tab_2x2": {
+      "deg_and_flipped": 28,
+      "deg_and_unflipped": 1,
+      "valid_and_flipped": 237,
+      "valid_and_unflipped": 34
+    },
+    "auc_unfiltered": 0.5784,
+    "ci_unfiltered": [
+      0.5291,
+      0.6257
+    ],
+    "auc_filtered": 0.5353,
+    "ci_filtered": [
+      0.4836,
+      0.5833
+    ],
+    "auc_flipped_filtered": 0.5614,
+    "ci_flipped_filtered": [
+      0.5092,
+      0.61
+    ],
+    "n_valid_flipped": 237
+  },
+  "T2 Sweep lambda=50.0 (30 steps)": {
+    "asr_pct": 64.0,
+    "n_flipped": 192,
+    "total_deg_rate_pct": 5.0,
+    "deg_rate_a_pct": 5.0,
+    "deg_rate_b_pct": 0.0,
+    "cross_tab_2x2": {
+      "deg_and_flipped": 14,
+      "deg_and_unflipped": 1,
+      "valid_and_flipped": 178,
+      "valid_and_unflipped": 107
+    },
+    "auc_unfiltered": 0.5233,
+    "ci_unfiltered": [
+      0.4759,
+      0.5707
+    ],
+    "auc_filtered": 0.4992,
+    "ci_filtered": [
+      0.449,
+      0.5451
+    ],
+    "auc_flipped_filtered": 0.5615,
+    "ci_flipped_filtered": [
+      0.506,
+      0.6143
+    ],
+    "n_valid_flipped": 178
+  },
+  "T2 Sweep lambda=100.0 (30 steps)": {
+    "asr_pct": 55.0,
+    "n_flipped": 165,
+    "total_deg_rate_pct": 4.33,
+    "deg_rate_a_pct": 4.33,
+    "deg_rate_b_pct": 0.0,
+    "cross_tab_2x2": {
+      "deg_and_flipped": 11,
+      "deg_and_unflipped": 2,
+      "valid_and_flipped": 154,
+      "valid_and_unflipped": 133
+    },
+    "auc_unfiltered": 0.5102,
+    "ci_unfiltered": [
+      0.4627,
+      0.5581
+    ],
+    "auc_filtered": 0.4888,
+    "ci_filtered": [
+      0.4388,
+      0.5341
+    ],
+    "auc_flipped_filtered": 0.5643,
+    "ci_flipped_filtered": [
+      0.504,
+      0.619
+    ],
+    "n_valid_flipped": 154
+  }
+}
