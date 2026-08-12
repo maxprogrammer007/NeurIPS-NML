@@ -158,22 +158,33 @@ def build_genimage_dataset(
 
     sub_datasets = []
     for gen in gens:
-        ai_dir = root / gen / split / "ai"
-        nat_dir = root / gen / split / "nature"
+        gen_dir = root / gen
+        if not gen_dir.exists():
+            raise FileNotFoundError(f"Generator directory not found: {gen_dir}")
 
-        if not ai_dir.exists():
+        # Search recursively for 'ai' and 'nature' folders under the generator directory
+        ai_dirs = [p for p in gen_dir.glob(f"**/{split}/ai") if p.is_dir()]
+        if not ai_dirs:
+            # Fallback search for any 'ai' directory if split name differs (e.g., val vs test)
+            ai_dirs = [p for p in gen_dir.glob("**/ai") if p.is_dir()]
+            
+        nat_dirs = [p for p in gen_dir.glob(f"**/{split}/nature") if p.is_dir()]
+        if not nat_dirs:
+            nat_dirs = [p for p in gen_dir.glob("**/nature") if p.is_dir()]
+
+        if not ai_dirs:
             raise FileNotFoundError(
-                f"GenImage AI directory not found: {ai_dir}\n"
-                f"Expected layout: <data_root>/<generator>/<split>/ai/"
+                f"GenImage AI directory not found under {gen_dir}\n"
+                f"Expected folder with 'ai' subfolder."
             )
-        if not nat_dir.exists():
+        if not nat_dirs:
             raise FileNotFoundError(
-                f"GenImage nature directory not found: {nat_dir}\n"
-                f"Expected layout: <data_root>/<generator>/<split>/nature/"
+                f"GenImage nature directory not found under {gen_dir}\n"
+                f"Expected folder with 'nature' subfolder."
             )
 
-        ai_paths = _collect_images(str(ai_dir))
-        nat_paths = _collect_images(str(nat_dir))
+        ai_paths = _collect_images(str(ai_dirs[0]))
+        nat_paths = _collect_images(str(nat_dirs[0]))
 
         ai_sample = _balanced_sample(ai_paths, n_per_generator, rng)
         nat_sample = _balanced_sample(nat_paths, n_per_generator, rng)
