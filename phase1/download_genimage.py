@@ -2,8 +2,9 @@
 Phase 1 — GenImage Automated Downloader & Extractor
 ===================================================
 Downloads the official GenImage dataset from the mirror repository on Hugging Face
-(ENSTA-U2IS/GenImage), concatenates multi-part split zips (.z01, .z02, ..., .zip),
-unzips them into the target directory, and verifies directory layout.
+(ENSTA-U2IS/GenImage), handles multi-part split zips (.z01, .z02, ..., .zip)
+using native zip multi-volume consolidation (`zip -s 0`), unzips them into
+the target directory, and verifies directory layout.
 
 Usage:
   python download_genimage.py --output_dir ./GenImage --generators stable_diffusion_v_1_4,VQDM
@@ -12,7 +13,6 @@ Usage:
 
 import os
 import sys
-import glob
 import shutil
 import zipfile
 import argparse
@@ -75,7 +75,6 @@ def download_and_extract_generator(gen_key: str, hf_folder: str, output_dir: Pat
     
     downloaded_paths = []
     for p in parts:
-        filename = os.path.basename(p)
         print(f"Downloading {p} ...")
         local_path = hf_hub_download(
             repo_id=REPO_ID,
@@ -86,50 +85,49 @@ def download_and_extract_generator(gen_key: str, hf_folder: str, output_dir: Pat
         )
         downloaded_paths.append(Path(local_path))
         
-    # Check if there are split zips (.z01, .z02, ..., .zip)
     z_parts = [p for p in downloaded_paths if p.suffix.lower() != ".zip"]
     zip_main = [p for p in downloaded_paths if p.suffix.lower() == ".zip"]
     
-    combined_zip = gen_tmp / f"{gen_key}_combined.zip"
-    
-    if z_parts:
-        print(f"\nConcatenating {len(z_parts) + len(zip_main)} split zip parts into {combined_zip.name}...")
-        # Sort z_parts numerically
-        def z_part_key(p):
-            ext = p.suffix.lower()
-            try:
-                return int(ext.replace(".z", ""))
-            except ValueError:
-                return 0
-        sorted_z_parts = sorted(z_parts, key=z_part_key)
-        all_ordered_parts = sorted_z_parts + zip_main
+    target_gen_dir.mkdir(parents=True, exist_ok=True)
+
+    if z_parts and zip_main:
+        main_zip = zip_main[0]
+        single_zip = gen_tmp / f"{gen_key}_single.zip"
+        print(f"\nConsolidating multi-part split archive {main_zip.name} into single zip {single_zip.name}...")
         
-        with open(combined_zip, "wb") as outfile:
-            for p in all_ordered_parts:
-                print(f"Appending {p.name} ({p.stat().st_size / (1024*1024):.1f} MB)...")
-                with open(p, "rb") as infile:
-                    shutil.copyfileobj(infile, outfile)
-        target_zip_to_extract = combined_zip
+        # Use native zip -s 0 to combine split volumes cleanly
+        cmd_zip = ["zip", "-s", "0", str(main_zip), "--out", str(single_zip)]
+        print(f"Running: {' '.join(cmd_zip)}")
+        res_zip = subprocess.run(cmd_zip)
+        
+        if res_zip.returncode == 0 and single_zip.exists():
+            target_zip_to_extract = single_zip
+        else:
+            print("zip -s 0 consolidation failed or not supported. Falling back to patool/7z extraction...")
+            target_zip_to_extract = main_zip
     elif zip_main:
         target_zip_to_extract = zip_main[0]
     else:
         raise RuntimeError(f"No zip file found after downloading {gen_key}")
 
-    # Extract using 7z or unzip
+    # Extract using unzip or patool
     print(f"\nExtracting {target_zip_to_extract.name} to {target_gen_dir} ...")
-    target_gen_dir.mkdir(parents=True, exist_ok=True)
+    cmd_unzip = ["unzip", "-q", "-o", str(target_zip_to_extract), "-d", str(target_gen_dir)]
+    print(f"Running: {' '.join(cmd_unzip)}")
+    res_unzip = subprocess.run(cmd_unzip)
     
-    cmd = ["unzip", "-q", "-o", str(target_zip_to_extract), "-d", str(target_gen_dir)]
-    print(f"Running: {' '.join(cmd)}")
-    res = subprocess.run(cmd)
-    
-    if res.returncode != 0:
-        print(f"Warning: unzip returned code {res.returncode}. Checking python zipfile fallback...")
+    if res_unzip.returncode != 0:
+        print(f"Warning: unzip returned code {res_unzip.returncode}. Trying patool extract fallback...")
         try:
-            with zipfile.ZipFile(target_zip_to_extract, 'r') as zip_ref:
-                zip_ref.extractall(target_gen_dir)
+            import patoolib
+            patoolib.extract_archive(str(target_zip_to_extract), outdir=str(target_gen_dir))
         except Exception as e:
-            print(f"Zip extraction error: {e}")
+            print(f"patool extraction failed: {e}")
+            try:
+                with zipfile.ZipFile(target_zip_to_extract, 'r') as zip_ref:
+                    zip_ref.extractall(target_gen_dir)
+            except Exception as e2:
+                print(f"zipfile fallback failed: {e2}")
 
     # Clean up temporary download files to save disk space
     print(f"Cleaning up temporary downloads in {gen_tmp} ...")
