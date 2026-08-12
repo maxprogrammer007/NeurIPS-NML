@@ -386,8 +386,8 @@ def run_phase1_eval(args):
                 f"    ASR={metrics['asr_pct']:.1f}% | "
                 f"Degen={metrics['total_deg_rate_pct']:.1f}% | "
                 f"Filtered AUC={metrics['auc_filtered']} | "
-                f"Flipped+Filtered AUC={metrics['auc_flipped_filtered']} "
-                f"CI={metrics['ci_flipped_filtered']}"
+                f"Collapse AUC={metrics['auc_flipped_filtered_collapse']} {metrics['ci_flipped_filtered_collapse']} "
+                f"(Raw AUC={metrics['auc_flipped_filtered_raw']})"
             )
 
         all_results[gen_name] = gen_results
